@@ -1,0 +1,1823 @@
+FORMAT: 1A
+HOST: https://api.widencollective.com/v2/
+
+# Widen Collective API v2.0
+Collective is an image and media management application that focuses on the needs of marketing departments to distribute digital files.
+
+## API v2.0 Versioning
+
+As we evolve the API we will add properties to existing responses, but will not remove or change properties of existing responses. Your program should not error if it detects an
+unexpected property.
+<p>If we need to make backwards-incompatible changes to the API, we release a new dated version. Your
+program will always use the same version unless you modify your account settings or you request of specific
+version of the API by including a `X-Widen-API-Version` header identifying the version to use.
+<p>Available Versions:
+- `2015-07-01` (current)
+
+## API v1.0
+
+[Widen Collective API v1.0](https://widenv1.docs.apiary.io/#) is still available.
+
+## Authentication
+The API requires all requests to send an `Authorization` header. The authorization token value is available by logging into the Widen Collective application and accessing the API Setup page (Admin | Global Settings).
+
+The preferred format for the Authorization header is `Bearer`. Basic authorization is also supported by using the token as the username and a password of `x-oauth-basic`.
+- Example bearer header: `Authorization: Bearer demo/abc123def456`
+- Example basic authentication header: `Authorization: Basic demo/abc123def456:x-oauth-basic` (Note: username and password value must be Base64 encoded per the [basic auth specification]().)
+
+## General Statements
+- All dates are expressed in ISO-8601 formats. Date-only fields will not include time infomation.  Example: `2015-01-31T00:00:00Z`
+- All requests must use an HTTPS (SSL) connection.
+- XMLHTTP `Access-Control-Allow-Origin` header will be set to "*".
+- There is a rate limit of 10 calls per second per access token to the API. Exceeding this rate results in "429 too many requests" error responses.
+- There are no additional “per hour” or “per day” limits.  This “10 calls per second” rate is the only limitation to your API access.
+- This rate limit only applies to calls directly to the API (api.widencollective.com). Calls to "download links" that use our high availability CDN (embed.widencdn.net) are not subject to any limits, even if these links are served up through the API.
+- If your application is regularly hitting the limit of 10 calls per second, please contact your Customer Experience Manager or support@widen.com to discuss your use case.
+
+# Group Assets
+
+Asset objects represent stored files in the DAM system. The API allows you to create, update, and delete Assets.
+You can [search for assets](http://support.widencollective.com/support/solutions/articles/6000028352-quick-search), matching a specific search criteria or load an individual asset by unique ID.
+<p>Metadata and Security data can be included by using the `expand` property to add additional data to the returned JSON objects.
+(Request execution time may be longer when expanding some data.)
+
+# Assets [/assets]
+
+### List By Search Query [GET /assets/search{?query,sort,limit,offset,expand}]
+
+
++ Parameters
+
+    + query: `filename:(yellow ducky)` (string, optional) - Collective quicksearch query. Uses the same quick search syntax used within the Widen Collective web UI.  For more information on the format of a query string, see 
+[Quick Search Help](http://support.widencollective.com/support/solutions/articles/6000028352-quick-search). 
+    + sort: `filename` (string, optional) - Field to order the result-set; prefix term with `-` (negative sign) to for descending order. Default is `-created_date` (newest assets first).
+    + include_deleted: `true` (boolean, optional) - If true, deleted assets will be retured in the results, if the user assoicated with the access token has permission to view deleted assets.  Default value is `false`.
+    + include_archived: `true` (boolean, optional) - If true, archived assets will be retured in the results, if the user assoicated with the access token has permission to view archived assets.  Default value is `false`.
+    + search_document_text: `true` (boolean, optional) - If true, will include searching of document text in your search results.  Default value is `false`.
+    + limit: `10` (string, optional) - Numeric `limit` of the total number of results to retrieve. Maximum value is 100.
+    + offset: `20` (number, optional) - Starting position of query result set.
+    + scroll: `true` (boolean, optional) - If true, a scroll_id is included with the results to allow scrolling through large result sets.  Default value is `false`.
+    + expand: `asset_properties,file_properties,embeds,thumbnails,metadata,metadata_info,metadata_vocabulary,security` (string, optional) - Comma-seperated list of data items to expand on result set
+    
++ Response 200 (application/json)
+
+    + Body
+
+                {
+    "query": "lastEditDate:[after 2017-07-30T05:00:00Z]",
+    "sort": "-created_date",
+    "query_explained": "Last Edit Date: is after 2017-07-30T05:00:00Z",
+    "sort_explained": "Created date (descending)"
+    "scroll_id": "cXVlcnlUaGVuRmV0Y2g7Mzs1MDQwMzYzMTprdWpudDVTZ1R2LWY4a1JFcnRNT0FROzU4NTMyNjAwOmhUMUkxcTlaVHZTVHljVGMwVzJKOFE7NTg1MzI2MDE6aFQxSTFxOVpUdlNUeWNUYzBXMko4UTswOw==",
+    "scroll_timeout": "300000",
+    "query_syntax_ok": true,
+    "item_type": "asset",
+    "total_count": 2,
+    "offset": 0,
+    "limit": 10,
+    "items": [
+        {
+            "id": "6cbdfccc-8edd-4b63-892e-3283c5c932ad",
+            "external_id": "ty1tbzlfjd",
+            "filename": "Balloon-caricature-150x150",
+            "created_date": "2017-07-31T02:48:34Z",
+            "last_update_date": "2017-07-31T07:50:38Z",
+            "file_upload_date": "2017-07-31T02:48:34Z",
+            "deleted_date": null,
+            "released_and_not_expired": true,
+            "asset_properties": {
+                "favorite": false,
+                "popularity": 0,
+                "cutline_caption": ""
+            },
+            "file_properties": {
+                "format": "JPEG",
+                "format_type": "image",
+                "size_in_kbytes": 6,
+                "image_properties": {
+                    "aspect_ratio": 1
+                },
+                "video_properties": null
+            },
+            "metadata": {
+                "fields": {
+                    "keywords": [
+                        "toy, wood, fun, no person, desktop, cute, wooden, color, child, little, celebration, decoration, Easter, nature, play, family, figurine, leisure, gift, traditional"
+                    ],
+                    "description": [
+                        "monkey balloon artwork"
+                    ]
+                }
+            },
+            "metadata_info": null,
+            "security": {
+                "expiration_date": null,
+                "release_date": "2017-07-30T05:00:00Z",
+                "asset_groups": [
+                    "Public"
+                ]
+            },
+            "thumbnails": null,
+            "embeds": {
+                "300x300": {
+                    "url": "https://embed.widencdn.net/img/cloud/ty1tbzlfjd/300x300px/Balloon-caricature-150x150.jpeg?keep=c&u=nfoet5",
+                    "html": "<img width=\"300\" height=\"300\" alt=\"Balloon-caricature-150x150\" src=\"https://embed.widencdn.net/img/cloud/ty1tbzlfjd/300x300px/Balloon-caricature-150x150.jpeg?keep=c&u=nfoet5\">",
+                    "share": "https://p.widencdn.net/mgwu9d/Balloon-caricature-150x150",
+                    "apps": []
+                },
+                "640pxLandscape": {
+                    "url": "https://embed.widencdn.net/img/cloud/ty1tbzlfjx/640px/Balloon-caricature-150x150.jpeg?u=nfoet5",
+                    "html": "<img width=\"640\" alt=\"Balloon-caricature-150x150\" src=\"https://embed.widencdn.net/img/cloud/ty1tbzlfjx/640px/Balloon-caricature-150x150.jpeg?u=nfoet5\">",
+                    "share": "https://p.widencdn.net/gun5ld/Balloon-caricature-150x150",
+                    "apps": []
+                },
+                "640pxPortrait": {
+                    "url": "https://embed.widencdn.net/img/cloud/ty1tbzlfjd/x640px/Balloon-caricature-150x150.jpeg?u=nfoet5",
+                    "html": "<img height=\"640\" alt=\"Balloon-caricature-150x150\" src=\"https://embed.widencdn.net/img/cloud/ty1tbzlfjx/x640px/Balloon-caricature-150x150.jpeg?u=nfoet5\">",
+                    "share": "https://p.widencdn.net/p6jmbf/Balloon-caricature-150x150",
+                    "apps": []
+                },
+                "original": {
+                    "url": "https://embed.widencdn.net/download/cloud/ty1tbzlfjd/Balloon-caricature-150x150.jpg?u=nfoet5",
+                    "html": "<a href=\"https://embed.widencdn.net/download/cloud/ty1tbzlfjd/Balloon-caricature-150x150.jpg?u=nfoet5\" target=\"_blank\">Balloon-caricature-150x150.jpg</a>",
+                    "share": "https://p.widencdn.net/qkh2fd/Balloon-caricature-150x150",
+                    "apps": []
+                }
+            },
+            "expanded": {
+                "asset_properties": true,
+                "download_link": true,
+                "embeds": true,
+                "file_properties": true,
+                "metadata": true,
+                "metadata_info": false,
+                "metadata_vocabulary": false,
+                "security": true,
+                "thumbnails": false
+            },
+            "_links": {
+                "download": "https://embed.widencdn.net/download/api/cloud/ty1tbzlfjd/Balloon-caricature-150x150?signature=fxOomc1RBCi9BB7RI45iQzeXayc%3D&expires=1501620903487&use_preferred_extension=true",
+                "self": "https://api.widencollective.com/v2/assets/6cbdfccc-8edd-4b63-892e-3283c5c932ad",
+                "self_all": "https://api.widencollective.com/v2/assets/6cbdfccc-8edd-4b63-892e-3283c5c932ad?expand=asset_properties%2Cembeds%2Cfile_properties%2Cmetadata%2Cmetadata_info%2Cmetadata_vocabulary%2Csecurity%2Cthumbnails"
+            }
+        },
+        {
+            "id": "03a3fcb8-8a03-4974-8c1e-f2ac6c0b3ccd",
+            "external_id": "qhvtfxvcdd",
+            "filename": "IMG_1815",
+            "created_date": "2017-07-31T02:32:08Z",
+            "last_update_date": "2017-07-31T07:34:41Z",
+            "file_upload_date": "2017-07-31T02:32:08Z",
+            "deleted_date": null,
+            "released_and_not_expired": true,
+            "asset_properties": {
+                "favorite": false,
+                "popularity": 0,
+                "cutline_caption": ""
+            },
+            "file_properties": {
+                "format": "JPEG",
+                "format_type": "image",
+                "size_in_kbytes": 140,
+                "image_properties": {
+                    "aspect_ratio": 1.500938086304
+                },
+                "video_properties": null
+            },
+            "metadata": {
+                "fields": {
+                    "description": [
+                        "men's black long sleeve top with black helmet"
+                    ],
+                    "keywords": [
+                        "People,Person,Human,Automobile,Car,Vehicle"
+                    ]
+                }
+            },
+            "metadata_info": null,
+            "security": {
+                "expiration_date": null,
+                "release_date": "2017-07-30T05:00:00Z",
+                "asset_groups": [
+                    "Public"
+                ]
+            },
+            "thumbnails": null,
+            "embeds": {
+                "300x300": {
+                    "url": "https://embed.widencdn.net/img/cloud/qhvtfxvcdd/300x300px/IMG_1815.jpeg?keep=c&u=nfoet5",
+                    "html": "<img width=\"300\" height=\"300\" alt=\"IMG_1815\" src=\"https://embed.widencdn.net/img/cloud/qhvtfxvcdd/300x300px/IMG_1815.jpeg?keep=c&u=nfoet5\">",
+                    "share": "https://p.widencdn.net/wlqkra/IMG_1815",
+                    "apps": []
+                },
+                "640pxLandscape": {
+                    "url": "https://embed.widencdn.net/img/cloud/qhvtfxvcdd/640px/IMG_1815.jpeg?u=nfoet5",
+                    "html": "<img width=\"640\" alt=\"IMG_1815\" src=\"https://embed.widencdn.net/img/cloud/qhvtfxvcdd/640px/IMG_1815.jpeg?u=nfoet5\">",
+                    "share": "https://p.widencdn.net/kgmxsd/IMG_1815",
+                    "apps": []
+                },
+                "640pxPortrait": {
+                    "url": "https://embed.widencdn.net/img/cloud/qhvtfxvcdd/x640px/IMG_1815.jpeg?u=nfoet5",
+                    "html": "<img height=\"640\" alt=\"IMG_1815\" src=\"https://embed.widencdn.net/img/cloud/qhvtfxvcdd/x640px/IMG_1815.jpeg?u=nfoet5\">",
+                    "share": "https://p.widencdn.net/lwjkgd/IMG_1815",
+                    "apps": []
+                },
+                "original": {
+                    "url": "https://embed.widencdn.net/download/cloud/qhvtfxvcdd/IMG_1815.jpg?u=nfoet5",
+                    "html": "<a href=\"https://embed.widencdn.net/download/cloud/qhvtfxvcdd/IMG_1815.jpg?u=nfoet5\" target=\"_blank\">IMG_1815.jpg</a>",
+                    "share": "https://p.widencdn.net/3qyeed/IMG_1815",
+                    "apps": []
+                }
+            },
+            "expanded": {
+                "asset_properties": true,
+                "download_link": true,
+                "embeds": true,
+                "file_properties": true,
+                "metadata": true,
+                "metadata_info": false,
+                "metadata_vocabulary": false,
+                "security": true,
+                "thumbnails": false
+            },
+            "_links": {
+                "download": "https://embed.widencdn.net/download/api/cloud/qhvtfxvcdd/IMG_1815?signature=ijp7P%2BlfUBmWdscldmS%2FbtMg6VI%3D&expires=1501620903487&use_preferred_extension=true",
+                "self": "https://api.widencollective.com/v2/assets/03a3fcb8-8a03-4974-8c1e-f2ac6c0b3cc4",
+                "self_all": "https://api.widencollective.com/v2/assets/03a3fcb8-8a03-4974-8c1e-f2ac6c0b3cc4?expand=asset_properties%2Cembeds%2Cfile_properties%2Cmetadata%2Cmetadata_info%2Cmetadata_vocabulary%2Csecurity%2Cthumbnails"
+            }
+        }
+    ]
+}
+
+
+### Retrieve by ID [GET /assets/{id}{?expand}]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - Asset ID
+    + expand: `asset_properties,embeds,file_properties,metadata,metadata_info,metadata_vocabulary,security,thumbnails` (string, optional) - Additional properties to be included in response (comma delimited list).
+
++ Response 200 (application/json)
+
+    + Body
+
+                {
+            "id": "03a3fcb8-8a03-4974-8c1e-f2ac6c0b3ccd",
+            "external_id": "qhvtfxvcdd",
+            "filename": "IMG_1815",
+            "created_date": "2017-07-31T02:32:08Z",
+            "last_update_date": "2017-07-31T07:34:41Z",
+            "file_upload_date": "2017-07-31T02:32:08Z",
+            "deleted_date": null,
+            "released_and_not_expired": true,
+            "asset_properties": {
+                "favorite": false,
+                "popularity": 0,
+                "cutline_caption": ""
+            },
+            "file_properties": {
+                "format": "JPEG",
+                "format_type": "image",
+                "size_in_kbytes": 140,
+                "image_properties": {
+                    "aspect_ratio": 1.500938086304
+                },
+                "video_properties": null
+            },
+            "metadata": {
+                "fields": {
+                    "description": [
+                        "men's black long sleeve top with black helmet"
+                    ],
+                    "keywords": [
+                        "People,Person,Human,Automobile,Car,Vehicle"
+                    ]
+                }
+            },
+            "metadata_info": null,
+            "security": {
+                "expiration_date": null,
+                "release_date": "2017-07-30T05:00:00Z",
+                "asset_groups": [
+                    "Public"
+                ]
+            },
+            "thumbnails": null,
+            "embeds": {
+                "300x300": {
+                    "url": "https://embed.widencdn.net/img/cloud/qhvtfxvcdd/300x300px/IMG_1815.jpeg?keep=c&u=nfoet5",
+                    "html": "<img width=\"300\" height=\"300\" alt=\"IMG_1815\" src=\"https://embed.widencdn.net/img/cloud/qhvtfxvcdd/300x300px/IMG_1815.jpeg?keep=c&u=nfoet5\">",
+                    "share": "https://p.widencdn.net/wlqkra/IMG_1815",
+                    "apps": []
+                },
+                "640pxLandscape": {
+                    "url": "https://embed.widencdn.net/img/cloud/qhvtfxvcdd/640px/IMG_1815.jpeg?u=nfoet5",
+                    "html": "<img width=\"640\" alt=\"IMG_1815\" src=\"https://embed.widencdn.net/img/cloud/qhvtfxvcdd/640px/IMG_1815.jpeg?u=nfoet5\">",
+                    "share": "https://p.widencdn.net/kgmxsd/IMG_1815",
+                    "apps": []
+                },
+                "640pxPortrait": {
+                    "url": "https://embed.widencdn.net/img/cloud/qhvtfxvcdd/x640px/IMG_1815.jpeg?u=nfoet5",
+                    "html": "<img height=\"640\" alt=\"IMG_1815\" src=\"https://embed.widencdn.net/img/cloud/qhvtfxvcdd/x640px/IMG_1815.jpeg?u=nfoet5\">",
+                    "share": "https://p.widencdn.net/lwjkgd/IMG_1815",
+                    "apps": []
+                },
+                "original": {
+                    "url": "https://embed.widencdn.net/download/cloud/qhvtfxvcdd/IMG_1815.jpg?u=nfoet5",
+                    "html": "<a href=\"https://embed.widencdn.net/download/cloud/qhvtfxvcdd/IMG_1815.jpg?u=nfoet5\" target=\"_blank\">IMG_1815.jpg</a>",
+                    "share": "https://p.widencdn.net/3qyeed/IMG_1815",
+                    "apps": []
+                }
+            },
+            "expanded": {
+                "asset_properties": true,
+                "download_link": true,
+                "embeds": true,
+                "file_properties": true,
+                "metadata": true,
+                "metadata_info": false,
+                "metadata_vocabulary": false,
+                "security": true,
+                "thumbnails": false
+            },
+            "_links": {
+                "download": "https://embed.widencdn.net/download/api/cloud/qhvtfxvcdd/IMG_1815?signature=ijp7P%2BlfUBmWdscldmS%2FbtMg6VI%3D&expires=1501620903487&use_preferred_extension=true",
+                "self": "https://api.widencollective.com/v2/assets/03a3fcb8-8a03-4974-8c1e-f2ac6c0b3cc4",
+                "self_all": "https://api.widencollective.com/v2/assets/03a3fcb8-8a03-4974-8c1e-f2ac6c0b3cc4?expand=asset_properties%2Cembeds%2Cfile_properties%2Cmetadata%2Cmetadata_info%2Cmetadata_vocabulary%2Csecurity%2Cthumbnails"
+            }
+        }
+                
+### Delete [DELETE /assets/{id}{?expand}]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - Asset ID
+
++ Response 204
+    Success
+    + Body
+
+                {}
+                
++ Response 404
+    Asset Not Found
+    + Body
+
+                {
+                    "error": true,
+                    "response_code": 404,
+                    "error_message": "The asset was not found.",
+                    "stack_trace": null
+                }
+
+### Rename [PUT /assets/{id}/filename]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - Asset ID
+    
++ Request (application/json)
+    
+    + Body
+    
+            {
+                filename: “event kickoff”
+            }
+
++ Response 202
+    Success
+    + Body
+    
+                {
+                    "_links": {
+                    "self": "https://api.widencollective.com/v2/assets/00000000-1111-2222-3333-444444444abc"
+                    }
+                }
+                
++ Response 404
+    Asset Not Found
+    + Body
+
+                {
+                    "error": true,
+                    "response_code": 404,
+                    "error_message": "The asset was not found.",
+                    "stack_trace": null
+                }
++ Response 409
+    Asset Filename Conflict
+    + Body                
+                {
+                    "error": true,
+                    "response_code": 409,
+                    "error_message": "Asset with filename already exists.",
+                    "stack_trace": null
+                }
+
+
+## Alternate Preview [/assets/{id}/alternatepreview]
+
+Upload a new file as an alternate preview to an Asset.
+
+### Upload Alternate Preview [POST /assets/{id}/alternatepreview]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - Asset ID
+    + file: `binary data` (file) - `(multipart/form-data field)` Binary file of the alternate preview file for this asset
+    
++ Response 201 (application/json)
+    + Body
+    
+            {
+              "_links": [
+                  "self": "https://api.widencollective.com/v2/assets/abc-123/alternatepreview"
+              ]
+            }
+
+### Delete Alternate Preview [DELETE /assets/{id}/alternatepreview]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - Asset ID
+
+    
++ Response 204
+    Success
+    + Body
+
+## Asset Metadata [/assets/{id}/metadata]
+
+Metadata subresource simply returns the `metadata` property of the asset. The object structure returned by search endpoint and this method are identical.
+All assigned fields for the asset will be included. Empty fields are repesented with an empty array.
+
+
+### Retrieve Asset Metadata [GET /assets/{id}/metadata]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - ID of asset
+
++ Response 200 (application/json)
+
+    + Body
+
+                {
+                    "info": null,
+                    "fields": {
+                        "autocompleter": [
+                            
+                        ],
+                        "date": [
+                            
+                        ],
+                        "description": [
+                            "Description of file popcorn.jpg"
+                        ],
+                        "keywords": [
+                            "Butter, Hitchcock, Spielberg, Lucas"
+                        ],
+                        "numeric": [
+                            
+                        ],
+                        "palette": [
+                            
+                        ],
+                        "widen_original_filepath": [
+                            
+                        ]
+                    }
+                }
+
+### Update Metadata [PUT /assets/{id}/metadata?{patch}]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - ID of asset
+    + patch: `keywords` (string) - Comma seperated list of fields to update. (Other fields included in the body will be ignored.) If no patch parameter is sent, all fields included in request will be updated.
+    
++ Request (application/json)
+
+    Only fields sent in the request will be updated. If the `patch` parameter is sent, <strong>only</strong> those fields will be updated.
+
+    + Body
+    
+                {
+                    "fields": {
+                        "description": [
+                            "The description field value will be ignored because the patch parameter only contained keywords."
+                        ],
+                        "keywords": [
+                            "Butter, Hitchcock, Spielberg, Lucas"
+                        ]
+                    }
+                }
++ Response 200 (application/json)
+    Success
+    + Body
+
+                {
+                    "_links": {
+                        "metadata": "https://api.widencollective.com/v2/assets/269f78fe-e3e7-4a7c-a270-f748fe928fcf/metadata",
+                        "self": "https://api.widencollective.com/v2/assets/269f78fe-e3e7-4a7c-a270-f748fe928fcf"
+                    }
+                }
+                
++ Response 403
+    Invalid metadata field
+    + Body
+
+                {
+                    "error": true,
+                    "response_code": 403,
+                    "self": "https://api.widencollective.com/v2/assets/269f78fe-e3e7-4a7c-a270-f748fe928fcf",
+                    "error_message": "The user for the provided token does not have permission to edit the 'garbage' metadata field.",
+                    "stack_trace": null
+                }
+
++ Response 400
+    All patch parameters invalid
+    + Body
+
+                {
+                    "error": true,
+                    "response_code": 400,
+                    "error_message": "Patch list does not match any fields in the request body.",
+                    "stack_trace": null
+                }
+
+
+## Asset Security [/asset/security]
+
+### Retrieve Asset Security [GET /assets/{id}/security]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - ID of asset
+
++ Response 200 (application/json)
+
+    + Body
+
+                {
+                    "expiration_date": "2016-12-30T06:00:00Z",
+                    "release_date": "2015-06-30T05:00:00Z",
+                    "asset_groups": [
+                        "WidenQA",
+                        "public"
+                    ]
+                }
+
+### Update Security [PUT /assets/{id}/security{?patch}]
+
++ Parameters
+    + id: `00000000-1111-2222-3333-444444444abc` (string) - ID of asset
+    + patch: `release_date,expiration_date` (string) - Comma seperated list of properties to update. Valids values are `all`, `expiration_date`, `release_date`, `asset_groups`.
+
++ Request (application/json)
+
+    `asset_groups` update require at least one value (otherwise the asset becomes unavilable because it has no security assignments).
+    <p><strong>IMPORTANT:</strong> When using `patch=all` properties not sent in the request will be defaulted to `null`.
+    
+    + Body
+ 
+                {
+                    "expiration_date": "2016-12-31T00:00:00Z",
+                    "release_date": "2015-07-01T00:00:00Z",
+                    "asset_groups": [
+                        "WidenQA",
+                        "public"
+                    ]
+                }
+    
++ Response 200 (application/json)
+
+    + Body
+
+                {
+                    "_links": {
+                        "security": "https://api.widencollective.com/v2/assets/269f78fe-e3e7-4a7c-a270-f748fe928fcf/security",
+                        "self": "https://api.widencollective.com/v2/assets/269f78fe-e3e7-4a7c-a270-f748fe928fcf"
+                    }
+                }
+                
+## Scrolling Search Results [/asset/search/scroll]
+
+    The scroll endpoint can be used to retrieve large numbers of results (or even all results) from a single search request.  
+    <p>Scrolling is not intended for real time user requests, but rather for processing large amounts of data, e.g. with a background batch application that syncs Widen Collective data locally.
+    <p>In order to use the scroll endpoint, the initial List By Search Query request should specify a `scroll=true` parameter in the query.  The result set will contain a `scroll_id` field that can be passed into the scrolling search endpoint.
+    <p>Each call to the scroll endpoint with the previous response's `scroll_id` returns the next batch of results until there are no more results left to return, ie the result list is empty.  You must make the next call within the response's `scroll_timeout` value (in ms) before the `scroll_id` becomes invalid.
+    
+### List By Scrolling Search [GET /assets/search/scroll{?scroll_id,expand}]
+
++ Parameters
+    + `scroll_id`: `cXVlcnlUaGVuRmV0Y2g7Mzs1MDQwMzYzMTprdWpudDVTZ1R2LWY4a1JFcnRNT0FROzU4NTMyNjAwOmhUMUkxcTlaVHZTVHljVGMwVzJKOFE7NTg1MzI2MDE6aFQxSTFxOVpUdlNUeWNUYzBXMko4UTswOw==` (string, required) - scroll_id as returned by the original List By Search Query request
+    + expand: `asset_properties,file_properties,embeds,thumbnails,metadata,metadata_info,metadata_vocabulary,security` (string, optional) - Comma-seperated list of data items to expand on result set
+    
++ Response 200 (application/json)
+
+    + Body
+
+                {
+                    "query": null,
+                    "query_explained": "",
+                    "scroll_id": "cXVlcnlUaGVuRmV0Y2g7Mzs1MDQwMzYzMTprdWpudDVTZ1R2LWY4a1JFcnRNT0FROzU4NTMyNjAwOmhUMUkxcTlaVHZTVHljVGMwVzJKOFE7NTg1MzI2MDE6aFQxSTFxOVpUdlNUeWNUYzBXMko4UTswOw==",
+                    "scroll_timeout": "300000",
+                    "query_syntax_ok": true,
+                    "item_type": "asset",
+                    "total_count": 162,
+                    "offset": 0,
+                    "limit": null,
+                    "items": [
+                        {
+                            "id": "6cbdfccc-8edd-4b63-892e-3283c5c932ad",
+                            "external_id": "ty1tbzlfjd",
+                            "filename": "Balloon-caricature-150x150",
+                            "created_date": "2017-07-31T02:48:34Z",
+                            "last_update_date": "2017-07-31T07:50:38Z",
+                            "deleted_date": null,
+                            "released_and_not_expired": true,
+                            "asset_properties": null,
+                            "file_properties": null,
+                            "metadata": null,
+                            "metadata_info": null,
+                            "security": null,
+                            "thumbnails": null,
+                            "embeds": null,
+                            "expanded": {
+                                "asset_properties": false,
+                                "download_link": true,
+                                "embeds": false,
+                                "file_properties": false,
+                                "metadata": false,
+                                "metadata_info": false,
+                                "metadata_vocabulary": false,
+                                "security": false,
+                                "thumbnails": false
+                            },
+                            "_links": {
+                                "download": "https://embed.widencdn.net/download/api/cloud/ty1tbzlfjd/Balloon-caricature-150x150?signature=fxOomc1RBCi9BB7RI45iQzeXayc%3D&expires=1501620903487&use_preferred_extension=true",
+                                "self": "https://api.widencollective.com/v2/assets/6cbdfccc-8edd-4b63-892e-3283c5c932ad",
+                                "self_all": "https://api.widencollective.com/v2/assets/6cbdfccc-8edd-4b63-892e-3283c5c932ad?expand=asset_properties%2Cembeds%2Cfile_properties%2Cmetadata%2Cmetadata_info%2Cmetadata_vocabulary%2Csecurity%2Cthumbnails"
+                            }
+                        },
+                        {
+                            "id": "03a3fcb8-8a03-4974-8c1e-f2ac6c0b3ccd",
+                            "external_id": "qhvtfxvcdd",
+                            "filename": "IMG_1815",
+                            "created_date": "2017-07-31T02:32:08Z",
+                            "last_update_date": "2017-07-31T07:34:41Z",
+                            "deleted_date": null,
+                            "released_and_not_expired": true,
+                            "asset_properties": null,
+                            "file_properties": null,
+                            "metadata": null,
+                            "metadata_info": null,
+                            "security": null,
+                            "thumbnails": null,
+                            "embeds": null,
+                            "expanded": {
+                                "asset_properties": false,
+                                "download_link": true,
+                                "embeds": false,
+                                "file_properties": false,
+                                "metadata": false,
+                                "metadata_info": false,
+                                "metadata_vocabulary": false,
+                                "security": false,
+                                "thumbnails": false
+                            },
+                            "_links": {
+                                "download": "https://embed.widencdn.net/download/api/cloud/qhvtfxvcdd/IMG_1815?signature=ijp7P%2BlfUBmWdscldmS%2FbtMg6VI%3D&expires=1501620903487&use_preferred_extension=true",
+                                "self": "https://api.widencollective.com/v2/assets/03a3fcb8-8a03-4974-8c1e-f2ac6c0b3cc4",
+                                "self_all": "https://api.widencollective.com/v2/assets/03a3fcb8-8a03-4974-8c1e-f2ac6c0b3cc4?expand=asset_properties%2Cembeds%2Cfile_properties%2Cmetadata%2Cmetadata_info%2Cmetadata_vocabulary%2Csecurity%2Cthumbnails"
+                            }
+                        }
+                    ]
+                }
+    
+            
+## Creating New Assets [/uploads]
+
+    All uploads require a profile. Profiles control a new assets initial metadata and security defaults.
+    Use the Collective administrative tools to configure profiles to accommodate your use case.
+    <p>See Stackoverflow for examples of creating `multipart/form-data` requests for your language.
+
+### List All Upload Profiles [GET /uploads/profiles]
+
++ Response 200 (application/json)
+    + Body
+    
+            {
+                "Mobile Upload Profile": {
+                    release_date": null,
+                    "immediate_release": true,
+                    "asset_groups": ["Marketing", "Engineering"]
+                },
+                "Director Upload Profile": {
+                    "release_date": "2015-07-24T18:32:23Z",
+                    "immediate_release": true,
+                    "asset_groups": ["Marketing", "Engineering"]
+                }
+            }
+        
+### Upload a file [POST /uploads/?profile,file,filename]
+
++ Parameters
+    + profile: `REST Uploads` (string) - `(multipart/form-data field)` Upload Profile Name
+    + file: `binary data` (file, optional) - `(multipart/form-data field)` Optional binary file for upload.  Either the file, the url parameter, or the file id must be provided with this call.
+    + url: `https://s3.amazonaws.com/widen/test.png` (string, optional) - `(multipart/form-data field)` Optional public link to file for upload.  Either the file, the url parameter, or the file id must be provided with this call.
+    + file_id: `82808eb3-c144-4008-8add-4f9b87438405` (string, optional) - `(multipart/form-data field)` Optional fileid as returned by the Complete Chunked Upload endpoint.  Either the file, the url parameter, or the file id must be provided with this call.
+    + filename: `Yellow Ducky.png` (string, optional) - `(multipart/form-data field)` Filename (overrides name of MIME file)
+    + metadata: `{"fields": { "description": ["Directors"], "keywords": ["Butter, Hitchcock, Spielberg, Lucas"]}}` (string, optional) - `(multipart/form-data field)` Optional json metadata to apply to new Asset, in the same format as the Update Metadata call.
+
++ Response 201 (application/json)
+    + Body
+    
+            {
+              "_links": [
+                  "self": "https://api.widencollective.com/v2/assets/abc-123"
+              ]
+            }
+
+## Upload Files in Chunks [/uploads/chunks]
+
+    Assets with large filesizes can be broken into pieces and uploaded as smaller chunks.  
+    <p>```Start Chunked Upload``` begins a chunked uploading session.  The session_id in the response must be used for subsequent upload chunk and complete chunk calls.  This session_id is good for 7 days.
+    <p>Use ```Upload Chunk``` to upload each piece of the file.  Each call must include the session_id from the ```Start Chunked Upload``` call.  The tag in each ```Upload Chunk``` response must be used in the ```Complete Chunked Upload``` call.
+    <p>Once all file chunks have been uploaded, call ```Complete Chunked Upload``` with a list of all tags to complete the upload and put the file chunks back together into one file.  The file_id in the reponse can be used in the ```Create Asset``` call to create an Asset from this file.
+    <p>Note: Some Collective accounts do not support chunked uploading.  If you receive an 'Chunked uploads are not currently available for this account' error response, please contact support@widen.com to discuss your use case.
+
+
+### Start Chunked Upload [POST /uploads/chunks/start]
+
++ Response 200 (application/json)
+    + Body
+    
+            {
+               "session_id": "eyJhbGciOiJIUzUxMiJ9"
+            }
+
+### Upload Chunk [POST /uploads/chunks/upload]
+
++ Parameters
+    + session_id: `eyJhbGciOiJIUzUxMiJ9` (string) - `(multipart/form-data field)` Session ID for this chunked upload as returned by the Start Chunked Upload call
+    + chunk_number: '1' (integer) - `(multipart/form-data field)` The chunk number.  Must be between 1 and 10,000
+    + file: `binary data` (file) - `(multipart/form-data field)` Binary file chunk for upload.  Cannot be greater than 100MB, and must be at least 5MB unless it's the last chunk.
+    
++ Response 200 (application/json)
+    + Body
+    
+            {
+               "tag": "1:4f7a81b44c79b3eab3d00731ca5454ee"
+            }
+            
++ Response 400 
+
+### Complete Chunked Upload [POST /uploads/chunks/complete]
+
++ Parameters
+    + session_id: `eyJhbGciOiJIUzUxMiJ9` (string) - Session ID for this chunked upload as returned by the Start Chunked Upload call
+    + tags: '["1:4f7a81b44c79b3eab3d00731ca5454ee", "2:ed597059adb1532ec0aadf9a08e96d07"] (array) - Array of tags returned by the Upload Chunk calls.  Order is not important
+
++ Request (application/json)
+
+    + Body
+    
+            {
+                "session_id": "eyJhbGciOiJIUzUxMiJ9",
+                "tags": [
+                            "1:4f7a81b44c79b3eab3d00731ca5454ee", 
+                            "2:ed597059adb1532ec0aadf9a08e96d07"]
+                        ]
+                    }
+                }
+
++ Response 200 (application/json)
+    + Body
+    
+            {
+               "file_id": "82808eb3-c144-4008-8add-4f9b87438405"
+            }
+UPloading
+
+# Group Categories
+
+## Categories [/categories]
+
+## List categories [GET /categories/{category}/{subcategory}/{...}]
+
++ Parameters
+    + category: `Logos` (string, optional) - Optional parent category name.  If omitted, the top-level categories will be returned.  Must be url-encoded.  Slashes in category names must be escaped with a preceeding backslash (%5C%2F). 
+    + subcategory: `Graphic%5C%2FLayout` (String, optional) - One or more optional parent subcategory names.  Must be url-encoded.  Slashes in subcategory names must be escaped with a preceeding backslash (%5C%2F).
+
++ Response 200 (application/json)
+
+    List of Categories.  To query for subcategories within a category, use "categories" link.  To query for assets within a category, use the "assets" link.
+
+    + Body
+    
+            {
+                "item_type": "category",
+                "total_count": 1,
+                "items": [
+                    {
+                        "id": "125737da-a16d-4c86-8a47-75e8ae265b34",
+                        "name": "Graphic/Layout",
+                        "path": "Logos%2FGraphic%5C%2FLayout",
+                        "_links": {
+                            "assets": "https://apiv2.widenqa.com/v2/assets/search?query_category=Logos%2FGraphic%5C%2FLayout",
+                            "categories": "https://apiv2.widenqa.com/v2/categories/Logos/Graphic%5C%2FLayout"
+                        }
+                    }
+                ]
+            }
+
+# Group Collections
+
+## Collections [/collections]
+
+### List collections [GET /collections{?type}]
+
++ Parameters
+    + type: `global|private|shared` (string) - Filter for type of collections.
+
++ Response 200 (application/json)
+    + Body
+    
+            {
+                "item_type": "collection",
+                "total_count": 1,
+                "offset": 0,
+                "items": [
+                    {
+                        "title": "Awesome Collection",
+                        "type": "global",
+                        "total_items": 3,
+                        "_links": {
+                            "assets": "https://...."
+                        }
+                    }
+                ]
+            }
+
+# Group Expands
+
+Many resources take an optional `expand` property to include additional response data. Multiple expands can be requested together by seperating them with a comma.  For example: `expand=metadata,metadata_info,metadata_vocabulary`.
+
+## asset_properties
+
+```
+    {
+      "asset_properties": {
+        "popularity": 0,
+        "favorite": false,
+        "cutline_caption": ""
+      }
+    }
+```    
+
+
+## embeds
+For more information on embed links, see [Customizing Links and Embed Codes](https://support.widencollective.com/support/solutions/articles/6000028387-how-do-i-customize-share-links-and-embed-codes-for-images).
+
+```
+    {
+      "embeds": {
+        "640px-portrait": {
+          "html": "<img height=\"640\" alt=\"popcorn\" src=\"https://s-embed.widencdn.net/img/uriah-trek-local/jq1ycsbone/x640px/popcorn.jpeg?u=edeh4k\">",
+          "url": "https://s-embed.widencdn.net/img/uriah-trek-local/jq1ycsbone/x640px/popcorn.jpeg?u=edeh4k"
+        },
+        "original": {
+          "html": "<a href=\"https://s-embed.widencdn.net/download/uriah-trek-local/jq1ycsbone/popcorn.jpg?u=edeh4k\" target=\"_blank\">popcorn.jpg</a>",
+          "url": "https://s-embed.widencdn.net/download/uriah-trek-local/jq1ycsbone/popcorn.jpg?u=edeh4k"
+        },
+        "templated": {
+          "html": null,
+          "url": "https://embed.widencdn.net/img/trek/jq1ycsbone/{size}px@{scale}x/popcorn.jpg?q={quality}"
+        },
+        "640px-landscape": {
+          "html": "<img width=\"640\" alt=\"popcorn\" src=\"https://s-embed.widencdn.net/img/uriah-trek-local/jq1ycsbone/640px/popcorn.jpeg?u=edeh4k\">",
+          "url": "https://s-embed.widencdn.net/img/uriah-trek-local/jq1ycsbone/640px/popcorn.jpeg?u=edeh4k"
+        }
+      }
+    }
+```
+
+
+## file_properties
+
+```
+    {
+      "file_properties": {
+        "format_type": "image",
+        "image_properties": {
+          "aspect_ratio": 0.79303783
+        },
+        "size_in_kbytes": 0,
+        "video_properties": null,
+        "format": "JPEG"
+      }
+    }
+```
+
+
+## metadata
+
+```
+    {
+      "metadata": {
+        "fields": {
+          "date": [],
+          "keywords": [
+            "Butter, Hitchcock, Spielberg, Lucas"
+          ],
+          "description": [
+            "Description of file popcorn.jpg"
+          ],
+          "numeric": [],
+          "autocompleter": [],
+          "palette": [],
+          "widen_original_filepath": []
+        },
+        "info": null
+      }
+    }
+```
+
+
+## metadata_info
+
+```
+    {
+      "info": {
+        "field_set": "General Metadata Type",
+        "field_set_fields": [
+          {
+            "vocabulary": null,
+            "controlled_vocabulary": true,
+            "editable": true,
+            "label": "Catalog #",
+            "field_type": "selection_list",
+            "key": "autocompleter",
+            "required": false
+          },
+          {
+            "vocabulary": null,
+            "controlled_vocabulary": false,
+            "editable": true,
+            "label": "Original Date",
+            "field_type": "date",
+            "key": "date",
+            "required": false
+          },
+          {
+            "vocabulary": null,
+            "controlled_vocabulary": false,
+            "editable": true,
+            "label": "Description",
+            "field_type": "text_multi_line",
+            "key": "description",
+            "required": false
+          },
+          {
+            "vocabulary": null,
+            "controlled_vocabulary": false,
+            "editable": true,
+            "label": "Keywords",
+            "field_type": "text",
+            "key": "keywords",
+            "required": false
+          },
+          {
+            "vocabulary": null,
+            "controlled_vocabulary": false,
+            "editable": true,
+            "label": "Numeric",
+            "field_type": "numeric",
+            "key": "numeric",
+            "required": false
+          },
+          {
+            "vocabulary": null,
+            "controlled_vocabulary": true,
+            "editable": true,
+            "label": "Language",
+            "field_type": "selection_list_multi",
+            "key": "palette",
+            "required": false
+          },
+          {
+            "vocabulary": null,
+            "controlled_vocabulary": false,
+            "editable": true,
+            "label": "Original Filepath",
+            "field_type": "text",
+            "key": "widen_original_filepath",
+            "required": false
+          }
+        ]
+      }
+    }
+```
+
+
+## metadata_vocabulary
+
+```
+    {
+      "field_set_fields": {
+        "vocabulary": [
+          "English",
+          "British-English",
+          "Spanish",
+          "French",
+          "German",
+          "Russian"
+        ],
+        "controlled_vocabulary": true,
+        "editable": true,
+        "label": "Language",
+        "field_type": "selection_list_multi",
+        "key": "palette",
+        "required": false
+      }
+    }
+```
+
+
+## request_fields
+
+```
+    {
+      "request_fields": {
+        "Field name 1": [
+            "Field 1 value"
+        ],
+        "Field name 2": [
+            "Field 2 option a",
+            "Field 2 option b"
+        ]
+      }
+    }
+```
+
+
+## security
+
+```
+    {
+      "security": {
+        "release_date": null,
+        "expiration_date": "2016-09-29T05:00:00Z",
+        "asset_groups": [
+          "WidenQA",
+          "public"
+        ]
+      }
+    }
+```
+
+## status
+Can only be used with the Assets `Retrieve by ID` query
+
+Possible values for `upload_progress` are:
+- `pending`: Embed links and previews are not yet available.
+- `verifying`: Image embed links are ready.  Other previews and pre-conversion are not yet available.
+- `complete`: Image embed links are ready.  Other previews and pre-conversions will begin to be generated.
+
+```
+    "status": {
+        "upload_progress": "complete"
+    }
+```
+
+## thumbnails
+
+```
+    {
+      "thumbnails": {
+        "600px": {
+          "valid_until": "2015-09-01T17:36:43Z",
+          "url": "https://widen.widencollective.com/thumbnail/cd89ae75-6671-4b41-a0a9-d881c2212f05/av/600px/popcorn.jpg?t=1441129003474&s=dbc73e79fe68bcaf7050cbb080f8fb76e1583511"
+        },
+        "2048px": {
+          "valid_until": "2015-09-01T17:36:43Z",
+          "url": "https://widen.widencollective.com/thumbnail/cd89ae75-6671-4b41-a0a9-d881c2212f05/av/2048px/popcorn.jpg?t=1441129003474&s=f8e53b48482d1808ed30f7f91ec422254bd15a2e"
+        },
+        "125px": {
+          "valid_until": "2015-09-01T17:36:43Z",
+          "url": "https://widen.widencollective.com/thumbnail/cd89ae75-6671-4b41-a0a9-d881c2212f05/av/125px/popcorn.jpg?t=1441129003474&s=e0847564d49d351da712669954b5ffa328004d50"
+        },
+        "160px": {
+          "valid_until": "2015-09-01T17:36:43Z",
+          "url": "https://widen.widencollective.com/thumbnail/cd89ae75-6671-4b41-a0a9-d881c2212f05/av/160px/popcorn.jpg?t=1441129003475&s=3302645ce050e87db9fc39e90b0f0e77958ef0d5"
+        },
+        "300px": {
+          "valid_until": "2015-09-01T17:36:43Z",
+          "url": "https://widen.widencollective.com/thumbnail/cd89ae75-6671-4b41-a0a9-d881c2212f05/av/300px/popcorn.jpg?t=1441129003475&s=d0fa01f366b82c66b28c720de86200902640a7b2"
+        }
+      }
+    }
+```    
+
+# Group Metadata
+
+## Fields [/metadata/fields]
+
+The metadata fields endpoint allows you to query for a list of metadata fields that you have permission to see.
+
+### Viewable [GET /metadata/fields/viewable{?field_types,display_name_after,display_name_starts_with,limit}]
+
++ Parameters
+    + `field_types`: `checkboxes` (enum[string], optional) - The field type that you want to query
+        + Default: `all`
+        + Members
+            + `all`
+            + `all_controlled_vocabulary`
+            + `checkboxes`
+            + `date`
+            + `text_multi_line`
+            + `text`
+            + `selection_list`
+            + `limited_text_field`
+            + `text_short`
+            + `selection_list_multi`
+            + `numeric`
+            + `text_long`
+    + `display_name_after`: `Alternate` (string, optional) - A filter that only returns metadata fields with display names alphabetically greater than this value.
+    + `display_name_starts_with`: `Asset` (string, optional) - A filter that only returns metadata fields with display names that start with this value
+    + `limit`: (number, optional) - The max number of metadata fields returned by this query.  Must be between 1 and 100.
+        + Default: `100`
+        
++ Response 200 (application/json)
+    
+    List of metadata fields.
+    
+    + Body
+    
+        {
+            "fields": [
+                {
+                    "display_key": "assetInfo",
+                    "display_name": "Asset Information",
+                    "field_type": "text_long",
+                    "metadata_types": [
+                        "Photoshoot Assets",
+                        "Thirdparty Collateral"
+                    ]
+                },
+                {
+                    "display_key": "assetType",
+                    "display_name": "Asset Type",
+                    "field_type": "selection_list",
+                    "metadata_types": [
+                        "API Upload Type"
+                }
+            ]
+        }
+
++ Response 400 (application/json)
+
+    Type is invalid.
+    
+    + Body
+    
+        {
+            "error": true,
+            "response_code": 400,
+            "error_message": "'type' is invalid.",
+            "stack_trace": null
+        }
+        
++ Response 400 (application/json)
+
+    Limit must be between 1 and 100.
+    
+    + Body
+    
+        {
+            "error": true,
+            "response_code": 400,
+            "error_message": "'limit' must be between 1 and 100.",
+            "stack_trace": null
+        }
+
+## Controlled Vocabulary [/metadata/vocabulary]
+
+The metadata controlled vocabulary endpoint allows you to query, add, update, re-order, or delete controlled vocabulary values to your drop-down, palette, and checkbox group metadata fields.
+
+## List Values [GET /metadata/{displayKey}/vocabulary]
+
++ Parameters
+
+    + displayKey: `assetType` (string) - Display key of the controlled vocabulary metadata field
+    
++ Response 200 (application/json)
+
+    List of controlled vocabulary metadata values.
+
+    + Body
+    
+            {
+                "vocabulary": [
+                    "sell sheet",
+                    "product image",
+                    "spec sheet",
+                    "lifestyle photo",
+                    "promo video"
+                ],
+                "_links": {
+                    "self": "https://api.widencollective.com/v2/metadata/assetType/vocabulary"
+            }
+
+## Add Value [POST /metadata/{displayKey}/vocabulary]
+
++ Parameters
+
+    + displayKey: `assetType` (string) - Display key of the controlled vocabulary metadata field
+    + value: `flyer` (string) - The new controlled vocabulary value you wish to add
+    + index: `0` (numeric, optional) - Optional index of where to insert the new controlled vocabulary value.  If omitted, the new value will be added to the end of the list.
+
++ Request (application/json)
+
+    + Body
+    
+                {
+                    "value": "flyer",
+                    "index": 0
+                }
++ Response 201 (application/json)
+    Success
+    + Body
+
+                {
+                    "_links": {
+                        "self": "https://api.widencollective.com/v2/metadata/assetType/vocabulary/flyer",
+                        "vocabulary": "https://api.widencollective.com/v2/metadata/assetType/vocabulary"
+                    }
+                }
+
+## Retrieve Single Value [GET /metadata/{displayKey}/vocabulary/{existingValue}]
+
++ Parameters
+
+    + displayKey: `assetType` (string) - Display key of the controlled vocabulary metadata field
+    + existingValue: `spec%20sheet` (string) - The controlled vocabulary value
+    
++ Response 200 (application/json)
+
+    Get details for a single controlled vocabulary value.
+
+    + Body
+    
+            {
+                "value": "spec sheet",
+                "index": 2,
+                "_links": {
+                    "self": "https://api.widencollective.com/v2/metadata/assetType/vocabulary/spec%20sheet",
+                    "vocabulary": "https://api.widencollective.com/v2/metadata/assetType/vocabulary"
+            }
+
+## Update Value [PUT /metadata/{displayKey}/vocabulary/{existingValue}]
+
++ Parameters
+
+    + displayKey: `assetType` (string) - Display key of the controlled vocabulary metadata field
+    + existingValue: `spec%20sheet` (string) - The controlled vocabulary value you wish to update
+    + value: 'specs' (string, optional) - Optional new display name for this controlled vocabulary value.  Either `value`, `index`, or both must be provided.
+    + index: `3` (numeric, optional) - Optional index of where to re-order the updated controlled vocabulary value.  Either `value`, `index`, or both must be provided.
+
++ Request (application/json)
+
+    + Body
+    
+                {
+                    "value": "spec",
+                    "index": 3
+                }
++ Response 200 (application/json)
+    Success
+    + Body
+
+                {
+                    "_links": {
+                        "self": "https://api.widencollective.com/v2/metadata/assetType/vocabulary/spec%20sheet",
+                        "vocabulary": "https://api.widencollective.com/v2/metadata/assetType/vocabulary"
+                    }
+                }
+                
+                
++ Response 400
+    Metadata value not found
+    + Body
+
+                {
+                    "error": true,
+                    "response_code": 400,
+                    "error_message": "The metadata value 'spec sheet' is not in the vocabulary.",
+                    "stack_trace": null
+                }
+
+
+
+## Delete Value [DELETE /metadata/{displayKey}/vocabulary/{existingValue}]
+
++ Parameters
+    + displayKey: `assetType` (string) - Display key of the controlled vocabulary metadata field
+    + existingValue: `misc` (string) - The controlled vocabulary value you wish to delete
+
++ Response 200
+    Success
+    + Body
+
+                {
+                    "_links": {
+                        "vocabulary": "https://api.widencollective.com/v2/metadata/assetType/vocabulary"
+                    }
+                }
+                
++ Response 400
+    Metadata value not found
+    + Body
+
+                {
+                    "error": true,
+                    "response_code": 400,
+                    "error_message": "The metadata value 'misc' is not in the vocabulary.",
+                    "stack_trace": null
+                }
+
+
+# Group Search Connector
+
+## Instant Search Connector [/integrations]
+
+The Instant Search Connector allows external applications access to Widen Collective Asset search, without having to implement a native search UI.
+
+- The Instant Search Connector UI is provided by Widen via a secure dynamic web url endpoint.
+- This Search Connector url is returned by an API call to /integrations/url (described below).
+- The Search Connector UI is intended to be displayed in an iframe within the parent application.
+- Searching and selecting of multiple Assets is provided by the Search Connector UI.
+- Search permissions will match those of the API caller that made the query to /integrations/url for the search endpoint.
+- The Search Connector url is valid for 24 hours, and is signed via a one-way hash to prevent modification of its parameters.
+
+
+When a user selects one or more Assets in the Search Connector UI, information about the user’s selection is passed back to the parent application with a javascript postMessage call:
+
+```
+    {
+        "count": 1,
+        "action": "embed",
+        "items": [
+            {
+                "id": "190dfsaf-f82c-462m-bc5e-eab2b8ed3bf9",
+                "external_id": "fzsf3duqp0",
+                "filename": "beef_soup.psd",
+                "embed_name": "640px Landscape",
+                "embed_link": "https://embed.widencdn.net/img/demo/fzsf3duqp0/640px/beef_soup.jpeg?u=xkzj3k",
+                "embed_code": "<img width=\"640\" alt=\"beef_soup\" src=\"https://embed.widencdn.net/img/demo/fzsf3duqp0/640px/beef_soup.jpeg?u=xkzj3k\">",        
+                "share_link": "https://p.widencdn.net/g6dnbl/Mimco4",
+                "thumbnail_link": "https://embed.widencdn.net/img/demo/fzsf3duqp0/2048px/beef_soup.jpeg
+            }
+        ]
+    }
+```    
+
+The hosting application's javascript can receive this and process this message by listening for the "message" event:
+
+```
+    window.addEventListener('message', function(event)
+    {
+        console.log(event.data);
+        var embedCode = event.data.items[0].embed_code;
+        console.log(embedCode);
+    
+        // Insert embedCode into user’s html content
+        // Close iframe
+    })
+```
+
+The parent application can use the embed_code to insert into web page content, or the share_link for outbound email messages, or store the selected Asset IDs for future use.
+
+See our [support article](https://support.widencollective.com/support/solutions/articles/6000129918-what-is-the-instant-search-connector-) for more information about the Instant Search Connector.
+
+
+### Instant Search Connector URL [GET /integrations/url{?query}]
+
+Returns a url to the Search Connector UI.  This UI intended to be displayed in an iframe within the parent application.  The returned url is valid for 24 hours and is signed via a one-way hash to prevent modification of its parameters.
+
+
++ Parameters
+    + query: `my%20search%20term` (string, optional) - Optional URL-encoded search term to initially seed the Search Connector results page.
+    + hideSearchBar: `true` (boolean, optional) - Optional flag to remove the search bar from the user interface.  Useful when used with the optional query parameter to simply present a set of search results.  Default value is 'false'.
+
++ Response 200 (application/json)
+    + Body
+    
+            {
+                "url": "https://demo.widencollective.com/portals/search?auth=demo%2F9cae6254ce44db679b7f75d037c7d73c&app=Sitecore&t=2016-04-29T21%3A19%3A36Z&s=920cfa1488580c65d94ee7875199383c31668ead"
+            }
+            
+# Group Workflow
+
+Workflow objects represent projects and deliverables stored in the Widen Workflow system.  The API allows you to retrieve, create, delete, and close proofs and projects.  Webhooks are available to keep your connected systems aware of deliverable status updates.
+
+
+# Projects [/workflow/projects]
+
+Projects are the container object for all work that is to be reviewed.  A project can have zero to many deliverables and is managed by a single person, the project manager.
+
+### Retrieve by Project ID [GET /workflow/projects/{project_id}?expand=request_fields]
++ Parameters
+    + project_id: `TLA-0002` (string) - Project ID
+    + expand:   `request_fields` (string, optional) - Currently only "request_fields" expand is available
+
++ Response 200
+    Success
+    + Body
+
+                {
+                    "project_id": "TLA-0002",
+                    "name": "DAM Decisions",
+                    "description": "",
+                    "due_date": "2017-10-31T05:00:00Z",
+                    "project_manager": {
+                        "email_address": "user123@email.com",
+                        "first_name": "Sample",
+                        "last_name": "User"
+                    },
+                    "deliverables": [
+                        {
+                            "id": "001",
+                            "name": "What to know [PDF]",
+                            "due_date": "2017-10-31T05:00:00Z",
+                            "status": "CLOSED"
+                        },
+                        {
+                            "id": "002",
+                            "name": "title",
+                            "due_date": "2017-10-31T05:00:00Z",
+                            "status": "CLOSED"
+                        }
+                    ],
+                    "expanded":{
+                        "request_fields":true
+                    },
+                    "_links": {
+                        "self": "https://api.widencollective.com/v2/workflow/projects/TLA-0002",
+                        "deliverables": "https://api.widencollective.com/v2/workflow/projects/TLA-002/deliverables",
+                        "support_files": "https://api.widencollective.com/v2/workflow/projects/TLA-002/support-files"
+                    }
+                }
+
+### Retrieve supporting files [GET /workflow/projects/{project_id}/support-files]
++ Parameters
+    + project_id: `TLA-0002` (string) - Project ID
+    
++ Response 200
+    Success
+    + Body
+
+                {
+                    [
+                        {
+                            "id": "1db2ec2f-37e9-4781-b367-3a6d5c8b9a40",
+                            "name": "supporting_file1.cr2",
+                            "size_in_bytes": 27063254,
+                            "format_type": "image/x-canon-cr2",
+                            "upload_date": "2019-07-23T20:22:24Z",
+                            "uploader": {
+                                "email_address": "user@company.com",
+                                "first_name": "The",
+                                "last_name": "Uploader"
+                            },
+                            "_links": {
+                                "self": "https://api.widencollective.com/v2/workflow/projects/tla-0002/support-files",
+                                "project": "https://api.widencollective.com/v2/workflow/projects/tla-0002",
+                                "download": "https://api.widencollective.com/v2/workflow/projects/tla-0002/support-files/1db2ec2f-37e9-4781-b367-3a6d5c8b9a40"
+                            }
+                        },
+                        {
+                            "id": "3b3de6d3-4b15-428d-99ae-81a5b6bf4d08",
+                            "name": "supporting_file2.gif",
+                            "size_in_bytes": 27686440,
+                            "format_type": "image/gif",
+                            "upload_date": "2019-07-23T20:22:31Z",
+                            "uploader": {
+                                "email_address": "user@company.com",
+                                "first_name": "The",
+                                "last_name": "Uploader"
+                            },
+                            "_links": {
+                                "self": "https://api.widencollective.com/v2/workflow/projects/tla-0002/support-files",
+                                "project": "https://api.widencollective.com/v2/workflow/projects/tla-0002",
+                                "download": "https://api.widencollective.com/v2/workflow/projects/tla-0002/support-files/3b3de6d3-4b15-428d-99ae-81a5b6bf4d08"
+                            }
+                        }
+                    ]
+                }
+                
+### Create new Project [POST /workflow/projects]
+
++ Request (application/json)
+
+    POST to this endpoint with the JSON fields below to create a new Project.  Owner is optional - it defaults to calling user.  Start date must be greater than end date and end date cannot be in the past.
+
+    + Body
+    
+                {
+                    "name": "My API Project 2",
+                    "description": "A sample project creation",
+                    "start_date": "2018-04-23T17:18:21.988Z",
+                    "end_date": "2018-05-23T17:18:21.988Z",
+                    "project_manager": "thepm@email.com",
+                    "owner":"theowner@email.com"
+                }
++ Response 201 (application/json)
+    Success
+    + Body
+
+                {
+                    "project_id": "TLA-0002"
+                }
+
+
+### Delete Project [DELETE /workflow/projects/{project_id}]
++ Parameters
+    + id: `TLA-0002` (string) - Project ID
+
+    
++ Response 204
+    Success
+    + Body
+
+# Deliverables [/workflow/projects/deliverables]
+
+Deliverables represent the individual components of a Workflow project.  A deliverable contains a review workflow, dates, and acquires one to many versions of a proof throughout the review cycle.
+
+### Retrieve all Project Deliverables [GET /workflow/projects/{project_id}/deliverables]
++ Parameters
+    + project_id: `TLA-0002` (string) - Project ID
+
++ Response 200
+    Success
+    + Body
+
+                {
+                    items: [
+                        {
+                            "deliverable_id": "001",
+                            "name": "An existing deliverable",
+                            "due_date": "2017-11-02T20:05:34Z",
+                            "status": "IN_REVIEW",
+                            "deliverable_manager": {
+                                "email_address": "delmgr@email.com",
+                                "first_name": "The",
+                                "last_name": "Manager"
+                            },
+                            "proof_provider": {
+                                "email_address": "designer@email.com",
+                                "first_name": "Graphic",
+                                "last_name": "Designer"
+                            },
+                            "thumbnails": {
+                                "small": "https://api.widencollective.com/workflow/api2/thumbnail/lm-andy/322a9462-1655-4e04-b5eb-f64bdb0d4006/small/Transforming%20Design%20Culture.png?signature=ByvCMF573MQTtoPFw%2Bh3OsXBEwhJV9zEHF%2BET4fhAo4%3D",
+                                "medium": "https://api.widencollective.com/workflow/api2/thumbnail/lm-andy/322a9462-1655-4e04-b5eb-f64bdb0d4006/medium/Transforming%20Design%20Culture.png?signature=AhdXy7CagcKQUjmubVQc3FGzVMNSIxJKskywICGXhP8%3D",
+                                "large": "https://api.widencollective.com/workflow/api2/thumbnail/lm-andy/322a9462-1655-4e04-b5eb-f64bdb0d4006/large/Transforming%20Design%20Culture.png?signature=cRNpmtb91wS3vd1%2B13OBrPpA2xS91CgPcsDGYBY2BWA%3D"
+                            },
+                            "expanded": {
+                                "download_link": false,
+                                "file_properties": false,
+                                "proof_url": false
+                            },
+                            "_links": {
+                                "self": "https://api.widencollective.com/v2/workflow/projects/TLA-0017/deliverables/001",
+                                "project": "https://api.widencollective.com/v2/workflow/projects/TLA-0017"
+                            }
+                        },
+                        {
+                            "deliverable_id": "002",
+                            "name": "Whitepaper",
+                            "description": "g3334",
+                            "due_date": "2017-12-01T06:00:00Z",
+                            "status": "NEEDS_SETUP",
+                            "deliverable_manager": {
+                                "email": "themgr@email.com",
+                                "first_name": "The",
+                                "last_name": "Manager"
+                            },
+                            "proof_provider": {
+                                "email": "copywriter@email.com",
+                                "first_name": "The",
+                                "last_name": "Copywriter"
+                            },
+                            "expanded": {
+                                "download_link": false,
+                                "file_properties": false,
+                                "proof_url": false
+                            },
+                            "_links": {
+                                "self": "https://api.widencollective.com/v2/workflow/projects/TLA-0017/deliverables/002",
+                                "project": "https://api.widencollective.com/v2/workflow/projects/LMA-0017"
+                            }
+                        }
+                    ]
+                }
+
+                 
+
+
+### Retrieve Deliverable By ID [GET /workflow/projects/{project_id}/deliverables/{deliverable_id}]
++ Parameters
+    + project_id: `TLA-0002` (string) - Project ID
+    + deliverable_id: `001` (string) - Deliverable ID
+    
++ Response 200
+    Success
+    + Body
+
+                {
+                    "deliverable_id": "001",
+                    "name": "Single-Deliverable.pdf",
+                    "due_date": "2017-10-31T05:00:00Z",
+                    "status": "CLOSED",
+                    "deliverable_manager": {
+                        "email_address": "delmgr@email.com",
+                        "first_name": "The",
+                        "last_name": "Manager"
+                    },
+                    "proof_provider": {
+                        "emai_addressl": "prooferprovider@email.com",
+                        "first_name": "Proof",
+                        "last_name": "Provider"
+                    },
+                    "thumbnails": {
+                        "small": "https://api.widencollective.com/workflow/api2/thumbnail/lm-andy/04c2e5b1-d44c-4050-9f6b-f304265f91c7/small/Single-Deliverable.png?signature=J6GRhHwyp2cEdLMUx%2FB2tkaCWX%2FyXVtabAeezdzB5Y0%3D",
+                        "medium": "https://api.widencollective.com/workflow/api2/thumbnail/lm-andy/04c2e5b1-d44c-4050-9f6b-f304265f91c7/medium/Single-Deliverable.png?signature=afEkfRuFw9AFM98JE450NRTsv0zx9rMslwoVoOyao%2BE%3D",
+                        "large": "https://api.widencollective.com/workflow/api2/thumbnail/lm-andy/04c2e5b1-d44c-4050-9f6b-f304265f91c7/large/Single-Deliverable.png?signature=cvk0Sh6DuX1PTTDwpXEEM91nDQr9pejhD7Z%2FlKQv7%2BQ%3D"
+                    },
+                    "expanded": {
+                        "download_link": false,
+                        "file_properties": false,
+                        "proof_url": false
+                    },
+                    "_links": {
+                        "self": "https://api.widencollective.com/v2/workflow/projects/LMA-0002/deliverables/001",
+                        "project": "https://api.widencollective.com/v2/workflow/projects/TLA-0002"
+                    }
+                }
+
+
+### Add Deliverable to Project [POST /workflow/projects/{project_id}/deliverables]
++ Parameters
+    + project_id: `TLA-0329` (string) - Project ID
+    
++ Request (application/json)
+
+
+    + Body
+    
+                {
+                    "name": "New Deliverable",
+                    "description": "The new deliverable description",
+                    "start_date": "2018-06-07T00:00:00Z",
+                    "due_date": "2018-06-12T00:00:00Z",
+                    "proof_provider": "proofprovider@email.com",
+                    "stages": [
+                        {
+                          "name": "Internal Review",
+                          "reviewers": [
+                            "reviewerone@email.com",
+                            "reviewertwo@email.com"
+                          ],
+                          "commenters": [commenterone@email.com],
+                          "due_date": "2018-06-09T00:00:00Z"
+                        },
+                        {
+                          "name": "Final Review",
+                          "reviewers": [
+                            "finalreviewer1@email.com",
+                            "finalreviewer2@email.com"
+                          ],
+                          "commenters": [],
+                          "due_date": "2018-06-10T00:00:00Z"
+                        }
+                    ]
+                }
+
+    
++ Response 201
+    Success
+    + Body
+
+                {
+                    "id": "3e7186ba-ca1e-4e21-b1e6-ef2e8c0d1744",
+                    "project_id": "TLA-0329",
+                    "deliverable_id": "002"
+                }
+
+
+### Close Deliverable [PUT /workflow/projects/{project_id}/deliverables/{deliverable_id}/close]
++ Parameters
+    + project_id: `TLA-0329` (string) - Project ID
+    + deliverable_id: `001` (string) - Deliverable ID
+
++ Request (application/json)
+
+    Deliverables can be optionally moved to Assets when they are closed.  To do this, the body must include a filename and the upload profile display name to be used when moving the file to Assets. If you wish to just close the deliverable simply leave the body of your call empty.
+    
+    + Body
+                {
+                    "upload_profile": "Widen Workflow Uploads",
+                    "filename": "Moved-From-Workflow.jpeg"
+                }
+
+
+
+### Delete Deliverable [DELETE /workflow/projects/{project_id}/deliverables/{deliverable_id}]
++ Parameters
+    + project_id: `TLA-0329` (string) - Project ID
+    + deliverable_id: `001` (string) - Deliverable ID
+    
+
++ Response 204
+    Success
+    + Body
+
+
+### Upload Proof to Deliverable [POST /workflow/projects/{project_id}/deliverables/{deliverable_id}/proofs]
++ Parameters
+    + project_id: `TLA-0329` (string) - Project ID
+    + deliverable_id: `001` (string) - Deliverable ID
+    
++ Request (application/json)
+    
+    + Body
+                {
+                    "filename": "theNewestProof.jpeg",
+                    "url": "https://s3.amazonaws.com/a-bucket/theNewestProof.jpeg",
+                    "content_length": 120929
+                }
+
+
+
+# Webhooks [/workflow/webhooks]
+
+Webhooks allow you to subscribe to changes within Widen Workflow and be updated of these changes as they happen.  This is a more convenient and efficient mechanism to receive notification of changes (Events) without using polling.
+The API allows you to retrieve a list of all webhook subscriptions, create new subscriptions, and remove existing subscriptions.  Event updates are made via POST and Workflow currently sends one Event object per POST.
+
+Events supported:
+
+- DELIVERABLE_STATUS_CHANGED - updated when a deliverable changes status such as moving from “In Review” to “Needs Proof”.  
+- PROJECT_CREATED - updated when a new project has been created.  Returns the project ID and title.  
+
+Possible status values:  
+- “NEEDS_SETUP”
+- “NEEDS_PROOF”
+- “NEEDS_PROOF_WITH_EDITS”
+- “IN_REVIEW”
+- “REVIEW_COMPLETE”
+- “CLOSED”
+
+
+### List all Webhooks [GET /workflow/webhooks]
+
++ Response 200
+    Success
+    + Body
+
+            {
+                items: [
+                    {
+                        "event": "DELIVERABLE_STATUS_CHANGED",
+                        "target": "http://abc123.requestcatcher.com"
+                    }
+                ]
+            }
+
+
+### Add new Webhook [POST /workflow/webhooks]
+
++ Request (application/json)
+    
+    + Body
+                {
+                    "event": "DELIVERABLE_STATUS_CHANGED",
+                    "target": "http://abc123.requestcatcher.com"
+                }
+                
++ Response 201
+    Success
+    + Body
+
+                {
+                    "event": "DELIVERABLE_STATUS_CHANGED",
+                    "target": "http://abc123.requestcatcher.com"
+                }
+
+
+### Delete Webhook [DELETE /workflow/webhooks]
+
++ Request (application/json)
+    
+    + Body
+                {
+                    "event": "DELIVERABLE_STATUS_CHANGED"
+                }
+
++ Response 204
+    Success
+    + Body
